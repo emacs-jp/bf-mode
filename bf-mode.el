@@ -122,8 +122,17 @@ This variable applies to archive files only.")
 Non-nil means verbosely. Nil means simply.\n
 This variable applies to directories only.")
 
-(defvar bf-mode-except-exts '("\\.exe$" "\\.com$" "\\.elc$")
+(defvar bf-mode-except-exts '("\\.exe$" "\\.com$" "\\.elc$" "\\.lnk$")
   "*List of file extensions which are excepted to browse.")
+
+(defvar bf-mode-xdoc2txt-exts '("\\.rtf" "\\.doc" "\\.xls" "\\.ppt"
+                                "\\.jaw" "\\.jtw" "\\.jbw" "\\.juw"
+                                "\\.jfw" "\\.jvw" "\\.jtd" "\\.jtt"
+                                "\\.oas" "\\.oa2" "\\.oa3" "\\.bun"
+                                "\\.wj2" "\\.wj3" "\\.wk3" "\\.wk4"
+                                "\\.123" "\\.wri" "\\.pdf" "\\.mht")
+  "*List of file extensions which are handled by xdoc2txt.")
+
 
 (defvar bf-mode-image-exts '("\\.png$"  "\\.gif$" "\\.bmp$" "\\.jp[e]?g$")
   "*List of file extensions which are handled as image.")
@@ -211,6 +220,11 @@ Nil means quitting bf-mode only, thus still alive dired.")
    ((eq bf-mode-browsing-category 'image)
     ;; do nothing
     )
+
+	;; xdoc2txt
+	((eq bf-mode-browsing-category 'xdoc2txt)
+	 ;; do nothing
+	 )
 
    ;; archive: toggle verbose/simply
    ((eq bf-mode-browsing-category 'archive)
@@ -361,6 +375,10 @@ Nil means quitting bf-mode only, thus still alive dired.")
 	(bf-mode-browse-image filename)
 	(setq bf-mode-browsing-category 'image))
 
+       ((bf-mode-correspond-ext-p filename bf-mode-xdoc2txt-exts)
+        (bf-mode-browse-xdoc2txt filename)
+        (setq bf-mode-browsing-category 'xdoc2txt))
+ 
        ;; archive
        ((string-match "\\.tar\\.gz$" filename)
 	(bf-mode-browse-archive filename
@@ -482,6 +500,43 @@ Nil means quitting bf-mode only, thus still alive dired.")
     (set-window-buffer (selected-window) dummy-buff))
   (bf-mode-set-window-start-line 1)
 )
+
+ ;; xdoc2txt
+ (defun bf-mode-browse-xdoc2txt (filename)
+   (kill-buffer bf-mode-current-browsing-buffer)
+   (let ((dummy-buff (generate-new-buffer (concat "bf:"
+						 (file-name-nondirectory
+						  filename)))))
+	 (set-buffer dummy-buff)
+	 (let ((fn (concat
+				(expand-file-name
+				 (make-temp-name "xdoc2")
+				 temporary-file-directory)
+				"."
+				(file-name-extension filename)))
+		   (str nil))
+	   (copy-file filename fn t)
+	   (insert
+		"XDOC2TXT FILE: " (file-name-nondirectory filename) "\n"
+		"----------------------------------------------------\n"
+		(shell-command-to-string
+		 (concat
+		"cd " (file-name-directory fn) ";"
+		"xdoc2txt" " -e " (file-name-nondirectory fn))))
+	   (goto-char (point-min))
+	   (while (re-search-forward "\r" nil t)
+		 (delete-region (match-beginning 0)
+						(match-end 0)))
+		(goto-char (point-min))
+		(while (re-search-forward "\\([\n ]+\\)\n[ ]*\n" nil t)
+		  (delete-region (match-beginning 1)
+						 (match-end 1)))
+	   (delete-file fn)
+	   )
+	 (setq buffer-read-only t)
+	 (set-window-buffer (selected-window) dummy-buff))
+   (bf-mode-set-window-start-line 1))
+ 
 
 ;; archives
 (defun bf-mode-browse-archive (filename command)
