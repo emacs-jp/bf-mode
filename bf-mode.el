@@ -521,8 +521,7 @@ Nil means quitting bf-mode only, thus still alive dired.")
 		"----------------------------------------------------\n"
 		(shell-command-to-string
 		 (concat
-		"cd " (file-name-directory fn) ";"
-		"xdoc2txt" " -e " (file-name-nondirectory fn))))
+          "xdoc2txt" " -e " fn)))
 	   (goto-char (point-min))
 	   (while (re-search-forward "\r" nil t)
 		 (delete-region (match-beginning 0)
