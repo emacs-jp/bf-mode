@@ -1,4 +1,13 @@
-;; bf-mode.el --- Browse File mode for dired
+;;; bf-mode.el --- Browse file persistently on dired
+
+;; Description: Browse file persistently on dired
+;; Author: isojin
+;; Maintainer: myuhe <yuhei.maeda_at_gmail.com>
+;; Copyright (C) 2012,2013 myuhe all rights reserved.
+;; Created: :2005-12-28
+;; Version: 0.0.1
+;; Keywords: convenience
+;; URL: https://github.com/emacs-jp/bf-mode
 ;;
 ;;	$Id: bf-mode.el,v 1.60 2005/12/28 09:49:13 gnrr Exp gnrr $
 ;;
@@ -86,6 +95,15 @@
 ;;  10. play mp3 and show the lyric
 
 ;;; Code:
+
+;; mode variable
+(defvar bf-mode nil
+  "Mode variable for bf minor mode.")
+(make-variable-buffer-local 'bf-mode)
+
+;; keymap
+(defvar bf-mode-map nil
+  "Keymap for browse-file (bf) minor mode.")
 
 ;;
 ;; variables for users
@@ -584,14 +602,6 @@ Nil means quitting bf-mode only, thus still alive dired.")
     (delete-other-windows bf-mode-dired-window))
   (use-local-map bf-mode-previous-keymap))
 
-;; mode variable
-(defvar bf-mode nil
-  "Mode variable for bf minor mode.")
-(make-variable-buffer-local 'bf-mode)
-
-;; keymap
-(defvar bf-mode-map nil
-  "Keymap for browse-file (bf) minor mode.")
 (if bf-mode-map
     nil
   (setq bf-mode-map (make-sparse-keymap))
