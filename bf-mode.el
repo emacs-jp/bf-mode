@@ -341,6 +341,7 @@ Nil means quitting bf-mode only, thus still alive dired.")
 ;; distinguish between directory or not
 ;;
 (defun bf-mode-browse ()
+  (let ((display-buffer-function nil))
   (when (one-window-p)
     (find-file-other-window (make-temp-name "bf"))
     (setq bf-mode-current-browsing-buffer (current-buffer))
@@ -359,7 +360,7 @@ Nil means quitting bf-mode only, thus still alive dired.")
         (select-window (next-window))
         (bf-mode-browse-file filename)
         (setq bf-mode-current-browsing-buffer (current-buffer))
-        (select-window bf-mode-dired-window)))))
+        (select-window bf-mode-dired-window))))))
 
 ;;
 ;; processing depends on file extensions
