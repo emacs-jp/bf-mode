@@ -91,7 +91,7 @@
 ;; variables for users
 ;;
 (defvar bf-mode-selecting-read-only nil
-  "*Flag, treat as read-only when file is selected.\n\n
+  "*Fla:g, treat as read-only when file is selected.\n\n
 Non-nil means read-only.\n
 Nil means writable.")
 
@@ -185,11 +185,10 @@ Nil means quitting bf-mode only, thus still alive dired.")
   (bf-mode 0)
   (dired-find-file)
   (when (eq major-mode 'dired-mode)
-	 (bf-mode 1))
+    (bf-mode 1))
   (if bf-mode-selecting-read-only
       (setq buffer-read-only t)
-    (setq buffer-read-only nil))
-  )
+    (setq buffer-read-only nil)))
 
 ;; toggle read-only browsing file
 (defun bf-mode-toggle-read-only ()
@@ -203,40 +202,36 @@ Nil means quitting bf-mode only, thus still alive dired.")
   (cond
    ;; directory: toggle verbose/simply
    ((eq bf-mode-browsing-category 'directory)
-    (setq bf-mode-directory-list-verbose (not bf-mode-directory-list-verbose))
-    )
+    (setq bf-mode-directory-list-verbose (not bf-mode-directory-list-verbose)))
 
    ;; size-over: force browse once
    ((eq bf-mode-browsing-category 'size-over)
-    (setq bf-mode-force-browse-temporary t)
-    )
+    (setq bf-mode-force-browse-temporary t))
 
    ;; except: force browse once
    ((eq bf-mode-browsing-category 'except)
-    (setq bf-mode-force-browse-temporary t)
-    )
+    (setq bf-mode-force-browse-temporary t))
 
    ;; image
    ((eq bf-mode-browsing-category 'image)
     ;; do nothing
     )
 
-	;; xdoc2txt
-	((eq bf-mode-browsing-category 'xdoc2txt)
-	 ;; do nothing
-	 )
+   ;; xdoc2txt
+   ((eq bf-mode-browsing-category 'xdoc2txt)
+    ;; do nothing
+    )
 
    ;; archive: toggle verbose/simply
    ((eq bf-mode-browsing-category 'archive)
-    (setq bf-mode-archive-list-verbose (not bf-mode-archive-list-verbose))
-    )
+    (setq bf-mode-archive-list-verbose (not bf-mode-archive-list-verbose)))
 
    ;; html: toggle browsing htmls with/without w3m
    ((eq bf-mode-browsing-category 'html)
     (setq bf-mode-html-with-w3m (not bf-mode-html-with-w3m))
-;;     (if bf-mode-html-with-w3m
-;; 	(bf-mode-start-w3m)
-;;       (bf-mode-quit-w3m))
+    ;; (if bf-mode-html-with-w3m
+    ;; 	(bf-mode-start-w3m)
+    ;;   (bf-mode-quit-w3m))
     )
 
    ;; text
@@ -282,18 +277,18 @@ Nil means quitting bf-mode only, thus still alive dired.")
 (defun bf-mode-scroll-other-window ()
   (interactive)
   (let* ((browsing-window (get-buffer-window bf-mode-current-browsing-buffer))
-	 (browsing-window-pmax (save-selected-window
-				 (select-window browsing-window)
-				 (point-max)))
-	 (browsing-window-pmin 1))
+         (browsing-window-pmax (save-selected-window
+                                 (select-window browsing-window)
+                                 (point-max)))
+         (browsing-window-pmin 1))
     (cond ((= (window-point browsing-window) browsing-window-pmax)
-	   (set-window-point browsing-window browsing-window-pmin))
-	  ((and (pos-visible-in-window-p browsing-window-pmax
-					 browsing-window)
-		(not (pos-visible-in-window-p browsing-window-pmin
-					      browsing-window)))
-	   (set-window-point browsing-window browsing-window-pmax))
-	(t (scroll-other-window (1- (window-height)))))))
+           (set-window-point browsing-window browsing-window-pmin))
+          ((and (pos-visible-in-window-p browsing-window-pmax
+                                         browsing-window)
+                (not (pos-visible-in-window-p browsing-window-pmin
+                                              browsing-window)))
+           (set-window-point browsing-window browsing-window-pmax))
+          (t (scroll-other-window (1- (window-height)))))))
 
 (defun bf-mode-scroll-other-window-down ()
   (interactive)
@@ -320,7 +315,7 @@ Nil means quitting bf-mode only, thus still alive dired.")
   (let ((ret nil))
     (while list
       (when (string-match (car list) filename)
-	(setq ret t))
+        (setq ret t))
       (setq list (cdr list)))
     ret))
 
@@ -334,20 +329,19 @@ Nil means quitting bf-mode only, thus still alive dired.")
     (select-window bf-mode-dired-window))
   (let ((filename (file-name-sans-versions (dired-get-filename) t)))
     (if (file-directory-p filename)
-	;; directory
-	(progn
-	  (bf-mode-browse-directory filename bf-mode-directory-list-verbose)
-	  (setq bf-mode-browsing-category 'directory)
-	  (select-window (next-window))
-	  (setq bf-mode-current-browsing-buffer (current-buffer))
-	  (select-window bf-mode-dired-window))
+        ;; directory
+        (progn
+          (bf-mode-browse-directory filename bf-mode-directory-list-verbose)
+          (setq bf-mode-browsing-category 'directory)
+          (select-window (next-window))
+          (setq bf-mode-current-browsing-buffer (current-buffer))
+          (select-window bf-mode-dired-window))
       ;; other regular file
       (when (file-regular-p filename)
-	(select-window (next-window))
-	(bf-mode-browse-file filename)
-	(setq bf-mode-current-browsing-buffer (current-buffer))
-	(select-window bf-mode-dired-window))))
-)
+        (select-window (next-window))
+        (bf-mode-browse-file filename)
+        (setq bf-mode-current-browsing-buffer (current-buffer))
+        (select-window bf-mode-dired-window)))))
 
 ;;
 ;; processing depends on file extensions
@@ -355,64 +349,65 @@ Nil means quitting bf-mode only, thus still alive dired.")
 (defun bf-mode-browse-file (filename)
   (let ((attr (file-attributes filename)))
     (if (and (>= (nth 7 attr) (* bf-mode-browsing-size 1024))
-	     (not (bf-mode-correspond-ext-p filename
-					    bf-mode-force-browse-exts))
-	     (not bf-mode-force-browse-temporary))
-	;; size over
-	(progn
-	  (bf-mode-buffer-for-size-over filename)
-	  (setq bf-mode-browsing-category 'size-over))
+             (not (bf-mode-correspond-ext-p filename
+                                            bf-mode-force-browse-exts))
+             (not bf-mode-force-browse-temporary))
+        ;; size over
+        (progn
+          (bf-mode-buffer-for-size-over filename)
+          (setq bf-mode-browsing-category 'size-over))
       (cond
        ;; except
        ((and (bf-mode-correspond-ext-p filename bf-mode-except-exts)
-	     (not bf-mode-force-browse-temporary))
-	(bf-mode-browse-except-file filename)
-	(setq bf-mode-browsing-category 'except))
+             (not bf-mode-force-browse-temporary))
+        (bf-mode-browse-except-file filename)
+        (setq bf-mode-browsing-category 'except))
 
        ;; image
        ((bf-mode-correspond-ext-p filename bf-mode-image-exts)
-	(bf-mode-browse-image filename)
-	(setq bf-mode-browsing-category 'image))
+        (bf-mode-browse-image filename)
+        (setq bf-mode-browsing-category 'image))
 
+       ;;xdoc
        ((bf-mode-correspond-ext-p filename bf-mode-xdoc2txt-exts)
         (bf-mode-browse-xdoc2txt filename)
         (setq bf-mode-browsing-category 'xdoc2txt))
- 
+       
        ;; archive
        ((string-match "\\.tar\\.gz$" filename)
-	(bf-mode-browse-archive filename
-				(if bf-mode-archive-list-verbose
-				    "tar ztvf " "tar ztf "))
-	(setq bf-mode-browsing-category 'archive))
+        (bf-mode-browse-archive filename
+                                (if bf-mode-archive-list-verbose
+                                    "tar ztvf " "tar ztf "))
+        (setq bf-mode-browsing-category 'archive))
        ((string-match "\\.tar\\.bz[2]?$" filename)
-	(bf-mode-browse-archive filename
-				(if bf-mode-archive-list-verbose
-				    "tar jtvf " "tar jtf "))
-	(setq bf-mode-browsing-category 'archive))
+        (bf-mode-browse-archive filename
+                                (if bf-mode-archive-list-verbose
+                                    "tar jtvf " "tar jtf "))
+        (setq bf-mode-browsing-category 'archive))
        ((string-match "\\.tar$" filename)
-	(bf-mode-browse-archive filename
-				(if bf-mode-archive-list-verbose
-				    "tar tvf " "tar tf "))
-	(setq bf-mode-browsing-category 'archive))
+        (bf-mode-browse-archive filename
+                                (if bf-mode-archive-list-verbose
+                                    "tar tvf " "tar tf "))
+        (setq bf-mode-browsing-category 'archive))
        ((string-match "\\.lzh$" filename)
-	(bf-mode-browse-archive filename
-				(if bf-mode-archive-list-verbose
-				    "lha v " "lha l "))
-	(setq bf-mode-browsing-category 'archive))
+        (bf-mode-browse-archive filename
+                                (if bf-mode-archive-list-verbose
+                                    "lha v " "lha l "))
+        (setq bf-mode-browsing-category 'archive))
 
        ;; html
        ((string-match "\\.htm[l]?$" filename)
-	(if bf-mode-html-with-w3m
-	    (bf-mode-browse-html filename)
-	  (bf-mode-browse-text filename))
-	(setq bf-mode-browsing-category 'html))
+        (if bf-mode-html-with-w3m
+            (bf-mode-browse-html filename)
+          (bf-mode-browse-text filename))
+        (setq bf-mode-browsing-category 'html))
 
        ;; other extensions and invoked functions here
 
        ;; text
        (t
-	(bf-mode-browse-text filename)
-	(setq bf-mode-browsing-category 'text)))
+        (bf-mode-browse-text filename)
+        (setq bf-mode-browsing-category 'text)))
       (setq bf-mode-force-browse-temporary nil))))
 
 ;;
@@ -442,7 +437,7 @@ Nil means quitting bf-mode only, thus still alive dired.")
     (setq buffer-read-only t)
     (set-window-buffer (selected-window) dummy-buff))
   (bf-mode-set-window-start-line 1)
-)
+  )
 
 ;; size over
 (defun bf-mode-buffer-for-size-over (filename)
@@ -464,14 +459,12 @@ Nil means quitting bf-mode only, thus still alive dired.")
      "\t3. PERMANENTLY: Adjust a variable \"bf-mode-browsing-size\" in dot.emacs.\n")
     (setq buffer-read-only t)
     (set-window-buffer (selected-window) dummy-buff))
-  (bf-mode-set-window-start-line 1)
-)
+  (bf-mode-set-window-start-line 1))
 
 ;; directory
 (defun bf-mode-browse-directory (dir verbose)
   (kill-buffer bf-mode-current-browsing-buffer)
-  (list-directory dir verbose)
-)
+  (list-directory dir verbose))
 
 ;;
 ;; each case of kind of files.
@@ -492,67 +485,64 @@ Nil means quitting bf-mode only, thus still alive dired.")
   (let ((dummy-buff (generate-new-buffer "bf:image file")))
     (set-buffer dummy-buff)
     (condition-case nil
-	(insert-image-file filename)
+        (insert-image-file filename)
       (error
        (message "Error occured while loading image.")))
     (setq buffer-read-only t)
     (set-window-buffer (selected-window) dummy-buff))
-  (bf-mode-set-window-start-line 1)
-)
+  (bf-mode-set-window-start-line 1))
 
- ;; xdoc2txt
- (defun bf-mode-browse-xdoc2txt (filename)
-   (kill-buffer bf-mode-current-browsing-buffer)
-   (let ((dummy-buff (generate-new-buffer (concat "bf:"
-						 (file-name-nondirectory
-						  filename)))))
-	 (set-buffer dummy-buff)
-	 (let ((fn (concat
-				(expand-file-name
-				 (make-temp-name "xdoc2")
-				 temporary-file-directory)
-				"."
-				(file-name-extension filename)))
-		   (str nil))
-	   (copy-file filename fn t)
-	   (insert
-		"XDOC2TXT FILE: " (file-name-nondirectory filename) "\n"
-		"----------------------------------------------------\n"
-		(shell-command-to-string
-		 (concat
-          "xdoc2txt" " -e " fn)))
-	   (goto-char (point-min))
-	   (while (re-search-forward "\r" nil t)
-		 (delete-region (match-beginning 0)
-						(match-end 0)))
-		(goto-char (point-min))
-		(while (re-search-forward "\\([\n ]+\\)\n[ ]*\n" nil t)
-		  (delete-region (match-beginning 1)
-						 (match-end 1)))
-	   (delete-file fn)
-	   )
-	 (setq buffer-read-only t)
-	 (set-window-buffer (selected-window) dummy-buff))
-   (bf-mode-set-window-start-line 1))
- 
+;; xdoc2txt
+(defun bf-mode-browse-xdoc2txt (filename)
+  (kill-buffer bf-mode-current-browsing-buffer)
+  (let ((dummy-buff (generate-new-buffer (concat "bf:"
+                                                 (file-name-nondirectory
+                                                  filename)))))
+    (set-buffer dummy-buff)
+    (let ((fn (concat
+               (expand-file-name
+                (make-temp-name "xdoc2")
+                temporary-file-directory)
+               "."
+               (file-name-extension filename)))
+          (str nil))
+      (copy-file filename fn t)
+      (insert
+       "XDOC2TXT FILE: " (file-name-nondirectory filename) "\n"
+       "----------------------------------------------------\n"
+       (shell-command-to-string
+        (concat
+         "xdoc2txt" " -e " fn)))
+      (goto-char (point-min))
+      (while (re-search-forward "\r" nil t)
+        (delete-region (match-beginning 0)
+                       (match-end 0)))
+      (goto-char (point-min))
+      (while (re-search-forward "\\([\n ]+\\)\n[ ]*\n" nil t)
+        (delete-region (match-beginning 1)
+                       (match-end 1)))
+      (delete-file fn))
+    (setq buffer-read-only t)
+    (set-window-buffer (selected-window) dummy-buff))
+  (bf-mode-set-window-start-line 1))
+
 
 ;; archives
 (defun bf-mode-browse-archive (filename command)
   (kill-buffer bf-mode-current-browsing-buffer)
   (let ((dummy-buff (generate-new-buffer (concat "bf:"
-						 (file-name-nondirectory
-						  filename)))))
+                                                 (file-name-nondirectory
+                                                  filename)))))
     (set-buffer dummy-buff)
     (insert
      "ARCHIVE FILE: " (file-name-nondirectory filename) "\n"
      "----------------------------------------------------\n"
      (shell-command-to-string (concat
-			       "cd " (file-name-directory filename) ";"
-			       command (file-name-nondirectory filename))))
+                               "cd " (file-name-directory filename) ";"
+                               command (file-name-nondirectory filename))))
     (setq buffer-read-only t)
     (set-window-buffer (selected-window) dummy-buff))
-  (bf-mode-set-window-start-line 1)
-)
+  (bf-mode-set-window-start-line 1))
 
 ;; htmls
 (defun bf-mode-browse-html (filename)
@@ -561,8 +551,7 @@ Nil means quitting bf-mode only, thus still alive dired.")
   (condition-case nil
       (w3m-find-file filename)
     (error
-     (message "Error occured while w3m.")))
-)
+     (message "Error occured while w3m."))))
 
 ;;
 ;; accordance with minor mode rules
@@ -583,8 +572,8 @@ Nil means quitting bf-mode only, thus still alive dired.")
   ;; exit from dired directly from bf-mode
   (when bf-mode-directly-quit
     (substitute-key-definition 'bf-mode-kill-dired
-			       'bf-mode-quit-dired bf-mode-map
-			       dired-mode-map))
+                               'bf-mode-quit-dired bf-mode-map
+                               dired-mode-map))
   (bf-mode-browse))
 
 ;; exit from minor mode
@@ -613,26 +602,25 @@ Nil means quitting bf-mode only, thus still alive dired.")
   (define-key bf-mode-map '[33554464] 'bf-mode-scroll-other-window-down)
   (define-key bf-mode-map "r" 'bf-mode-toggle-read-only)
   (define-key bf-mode-map "j" 'bf-mode-toggle-browse-alternative)
-;;   (define-key bf-mode-map "h" 'bf-mode-change-heading)
+  ;;   (define-key bf-mode-map "h" 'bf-mode-change-heading)
   (define-key bf-mode-map "s" 'bf-mode-change-browsing-size)
   (define-key bf-mode-map "q" 'bf-mode)
 
-  (set-keymap-parent bf-mode-map dired-mode-map)
-)
+  (set-keymap-parent bf-mode-map dired-mode-map))
 
 ;; mode line
 (if (not (assq 'bf-mode minor-mode-alist))
     (setq minor-mode-alist
-	  (cons '(bf-mode " Bf") minor-mode-alist)))
+          (cons '(bf-mode " Bf") minor-mode-alist)))
 
 ;; entrance
 (defun bf-mode (&optional arg)
   "Browse file (bf) minor mode."
   (interactive "P")
   (setq bf-mode
-	(if (null arg)
-	    (not bf-mode)
-	  (> (prefix-numeric-value arg) 0)))
+        (if (null arg)
+            (not bf-mode)
+          (> (prefix-numeric-value arg) 0)))
   (if bf-mode
       (bf-mode-enter)
     (bf-mode-quit))
@@ -642,23 +630,21 @@ Nil means quitting bf-mode only, thus still alive dired.")
 ;; hooks and advices to dired in order to use simply.
 ;;
 (add-hook 'dired-mode-hook
-	  '(lambda ()
-	     (bf-mode-save-window-configuration)
-	     (bf-mode-dired-delete-other-window)
-	     (define-key dired-mode-map "q" 'bf-mode-kill-dired)
-	     (define-key dired-mode-map "b" 'bf-mode)
-))
+          '(lambda ()
+             (bf-mode-save-window-configuration)
+             (bf-mode-dired-delete-other-window)
+             (define-key dired-mode-map "q" 'bf-mode-kill-dired)
+             (define-key dired-mode-map "b" 'bf-mode)))
 
 (defadvice dired (after bf-enable activate)
   (when (and (interactive-p)
-	     bf-mode-enable-at-starting-dired)
+             bf-mode-enable-at-starting-dired)
     (bf-mode 1)))
 
 (defadvice dired-mark (after bf-show-next activate)
   (when bf-mode
     (bf-mode-browse)))
 
-;;; end
 (provide 'bf-mode)
 
 ;;; bf-mode.el ends here
