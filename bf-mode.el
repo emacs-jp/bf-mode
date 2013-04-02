@@ -96,6 +96,8 @@
 
 ;;; Code:
 
+(require 'dired)
+
 ;; mode variable
 (defvar bf-mode nil
   "Mode variable for bf minor mode.")
@@ -648,7 +650,9 @@ Nil means quitting bf-mode only, thus still alive dired.")
              (define-key dired-mode-map "b" 'bf-mode)))
 
 (defadvice dired (after bf-enable activate)
-  (when (and (interactive-p)
+  (when (and (if (fboundp 'called-interactively-p)
+                 (called-interactively-p 'interactive)
+               (interactive-p))
              bf-mode-enable-at-starting-dired)
     (bf-mode 1)))
 
