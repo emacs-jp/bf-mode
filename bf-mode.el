@@ -96,6 +96,10 @@
 
 ;;; Code:
 
+(require 'dired)
+
+(declare-function w3m-find-file "w3m")
+
 ;; mode variable
 (defvar bf-mode nil
   "Mode variable for bf minor mode.")
@@ -647,8 +651,13 @@ Nil means quitting bf-mode only, thus still alive dired.")
              (define-key dired-mode-map "q" 'bf-mode-kill-dired)
              (define-key dired-mode-map "b" 'bf-mode)))
 
+(defvar bf-mode-interactive-p
+  (if (fboundp 'called-interactively-p)
+      (lambda () (called-interactively-p 'interactive))
+    'interactive-p))
+
 (defadvice dired (after bf-enable activate)
-  (when (and (interactive-p)
+  (when (and (funcall bf-mode-interactive-p)
              bf-mode-enable-at-starting-dired)
     (bf-mode 1)))
 
